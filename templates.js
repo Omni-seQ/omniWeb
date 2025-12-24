@@ -35,7 +35,7 @@ const footerTemplate = `
     <div class="footer__content">
       <!-- Branding Column -->
       <div class="footer__branding">
-        <h3>Omni Seq</h3>
+        <h3>OmniSeq</h3>
         <p>Enterprise-grade cybersecurity partner delivering global-standard security practices with deep local expertise in Nepal.</p>
       </div>
 
@@ -76,7 +76,7 @@ const footerTemplate = `
 
     <!-- Footer Bottom -->
     <div class="footer__bottom">
-      <p>&copy; 2024 Omni Seq Pvt. Ltd. All rights reserved. | Enterprise Security with Local Expertise.</p>
+      <p>&copy; 2024 OmniSeq Pvt. Ltd. All rights reserved. | Enterprise Security with Local Expertise.</p>
     </div>
   </div>
 `;
@@ -195,10 +195,11 @@ const industriesData = {
 // ========== FOOTER DATA ==========
 const footerData = {
   quickLinks: [
-    { name: 'Home', url: '#home' },
-    { name: 'Services', url: '#services' },
-    { name: 'About', url: '#about' },
-    { name: 'Contact', url: '#contact' }
+    { name: 'Home', url: 'index.html' },
+    { name: 'Services', url: 'services.html' },
+    { name: 'About', url: 'about.html' },
+    { name: 'Contact', url: 'index.html#contact' },
+    { name: 'Privacy Policy', url: 'privacy.html' }
   ],
   serviceLinks: [
     { name: 'VAPT Testing' },

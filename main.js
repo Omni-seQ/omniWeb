@@ -9,6 +9,7 @@ const app = createApp({
       formSubmitted: false,
       formError: false,
       formMessage: '',
+      theme: 'light', // 'light' or 'dark'
       form: {
         name: '',
         email: '',
@@ -19,6 +20,9 @@ const app = createApp({
   },
 
   mounted() {
+    // Initialize theme
+    this.initTheme();
+    
     // Scroll event listener (throttled)
     let scrollTimeout;
     const throttledScroll = () => {
@@ -76,6 +80,43 @@ const app = createApp({
         document.body.style.overflow = 'hidden';
       } else {
         document.body.style.overflow = '';
+      }
+    },
+
+    /**
+     * Initialize theme from localStorage or system preference
+     */
+    initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme) {
+        this.theme = savedTheme;
+      } else {
+        this.theme = systemPrefersDark ? 'dark' : 'light';
+      }
+      
+      this.applyTheme();
+    },
+
+    /**
+     * Toggle between light and dark theme
+     */
+    toggleTheme() {
+      this.theme = this.theme === 'light' ? 'dark' : 'light';
+      this.applyTheme();
+      localStorage.setItem('theme', this.theme);
+    },
+
+    /**
+     * Apply theme to document
+     */
+    applyTheme() {
+      const html = document.documentElement;
+      if (this.theme === 'dark') {
+        html.setAttribute('data-color-scheme', 'dark');
+      } else {
+        html.setAttribute('data-color-scheme', 'light');
       }
     },
 
@@ -592,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let targetY = 0;
     let isMouseActive = false;
 
-    // Smooth mouse follower
+    // Smooth mouse follower - enhanced visibility
     heroBackground.addEventListener('mousemove', (e) => {
       isMouseActive = true;
       mouseFollower.classList.add('active');
@@ -600,6 +641,14 @@ document.addEventListener('DOMContentLoaded', function() {
       const rect = heroBackground.getBoundingClientRect();
       targetX = e.clientX - rect.left;
       targetY = e.clientY - rect.top;
+      
+      // Add intensity based on mouse position
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const distance = Math.sqrt(Math.pow(targetX - centerX, 2) + Math.pow(targetY - centerY, 2));
+      const maxDistance = Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2));
+      const intensity = 0.4 + (1 - Math.min(distance / maxDistance, 1)) * 0.6;
+      mouseFollower.style.opacity = intensity.toString();
     });
 
     heroBackground.addEventListener('mouseleave', () => {
@@ -621,27 +670,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     animateMouseFollower();
 
-    // Parallax effect on background elements
-    heroBackground.addEventListener('mousemove', (e) => {
-      const rect = heroBackground.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      
-      const moveX = (x - 0.5) * 20;
-      const moveY = (y - 0.5) * 20;
-      
-      const grid = heroBackground.querySelector('.cyber-grid');
-      const orbs = heroBackground.querySelectorAll('.glow-orb');
-      
-      if (grid) {
-        grid.style.transform = `translate(${moveX}px, ${moveY}px)`;
-      }
-      
-      orbs.forEach((orb, index) => {
-        const multiplier = index === 0 ? 1.5 : -1;
-        orb.style.transform = `translate(${moveX * multiplier}px, ${moveY * multiplier}px)`;
+      // Enhanced parallax effect on background elements
+      heroBackground.addEventListener('mousemove', (e) => {
+        const rect = heroBackground.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        
+        // Increased movement range for more visible effect
+        const moveX = (x - 0.5) * 40;
+        const moveY = (y - 0.5) * 40;
+        
+        const grid = heroBackground.querySelector('.cyber-grid');
+        const orbs = heroBackground.querySelectorAll('.glow-orb');
+        const lines = heroBackground.querySelectorAll('.cyber-line');
+        
+        if (grid) {
+          grid.style.transform = `translate(${moveX * 0.5}px, ${moveY * 0.5}px)`;
+        }
+        
+        orbs.forEach((orb, index) => {
+          const multiplier = index === 0 ? 2 : -1.5;
+          orb.style.transform = `translate(${moveX * multiplier}px, ${moveY * multiplier}px)`;
+          // Add slight scale effect
+          const scale = 1 + (Math.abs(moveX) + Math.abs(moveY)) / 500;
+          orb.style.transform += ` scale(${scale})`;
+        });
+        
+        lines.forEach((line, index) => {
+          const offset = index === 0 ? moveY * 0.3 : -moveY * 0.2;
+          line.style.transform = `translateY(${offset}px)`;
+        });
       });
-    });
 
     // Particle canvas effect
     if (particleCanvas) {
@@ -658,19 +717,19 @@ document.addEventListener('DOMContentLoaded', function() {
       window.addEventListener('resize', resizeCanvas);
 
       // Create particles
-      class Particle {
-        constructor() {
-          this.reset();
-        }
+        class Particle {
+          constructor() {
+            this.reset();
+          }
 
-        reset() {
-          this.x = Math.random() * particleCanvas.width;
-          this.y = Math.random() * particleCanvas.height;
-          this.vx = (Math.random() - 0.5) * 0.5;
-          this.vy = (Math.random() - 0.5) * 0.5;
-          this.size = Math.random() * 2 + 1;
-          this.opacity = Math.random() * 0.5 + 0.2;
-        }
+          reset() {
+            this.x = Math.random() * particleCanvas.width;
+            this.y = Math.random() * particleCanvas.height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.size = Math.random() * 2 + 1.5;
+            this.opacity = Math.random() * 0.4 + 0.3;
+          }
 
         update() {
           this.x += this.vx;
@@ -688,16 +747,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // Initialize particles
-      for (let i = 0; i < particleCount; i++) {
+      // Initialize particles - increased count for better visibility
+      for (let i = 0; i < particleCount * 1.5; i++) {
         particles.push(new Particle());
       }
 
-      // Animation loop
+      // Enhanced particle interaction with mouse
+      let mouseParticleX = particleCanvas.width / 2;
+      let mouseParticleY = particleCanvas.height / 2;
+      
+      heroBackground.addEventListener('mousemove', (e) => {
+        const rect = heroBackground.getBoundingClientRect();
+        mouseParticleX = e.clientX - rect.left;
+        mouseParticleY = e.clientY - rect.top;
+      });
+
+      // Animation loop with mouse interaction
       function animateParticles() {
         ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
         
         particles.forEach(particle => {
+          // Attract particles to mouse
+          const dx = mouseParticleX - particle.x;
+          const dy = mouseParticleY - particle.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 150) {
+            const force = (150 - distance) / 150;
+            particle.vx += (dx / distance) * force * 0.02;
+            particle.vy += (dy / distance) * force * 0.02;
+          }
+          
           particle.update();
           particle.draw();
         });

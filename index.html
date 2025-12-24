@@ -6,28 +6,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
     <!-- Primary Meta Tags -->
-    <title>Omni Seq - Enterprise Cybersecurity Solutions | Nepal</title>
-    <meta name="title" content="Omni Seq - Enterprise Cybersecurity Solutions | Nepal">
+    <title>OmniSeq - Enterprise Cybersecurity Solutions | Nepal</title>
+    <meta name="title" content="OmniSeq - Enterprise Cybersecurity Solutions | Nepal">
     <meta name="description" content="Enterprise-grade IT solutions designed for modern business challenges. VAPT testing, compliance auditing, security operations, and infrastructure design in Nepal.">
     <meta name="keywords" content="cybersecurity, VAPT testing, compliance auditing, security operations, infrastructure design, cloud enablement, managed IT services, Nepal">
-    <meta name="author" content="Omni Seq Pvt. Ltd.">
+    <meta name="author" content="OmniSeq Pvt. Ltd.">
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://omniseq.com.np/">
-    <meta property="og:title" content="Omni Seq - Enterprise Cybersecurity Solutions">
+    <meta property="og:title" content="OmniSeq - Enterprise Cybersecurity Solutions">
     <meta property="og:description" content="Enterprise-grade IT solutions designed for modern business challenges. VAPT testing, compliance auditing, security operations, and infrastructure design.">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://omniseq.com.np/">
-    <meta property="twitter:title" content="Omni Seq - Enterprise Cybersecurity Solutions">
+    <meta property="twitter:title" content="OmniSeq - Enterprise Cybersecurity Solutions">
     <meta property="twitter:description" content="Enterprise-grade IT solutions designed for modern business challenges.">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect x='4' y='4' width='32' height='32' rx='2' fill='%2333808d'/><path d='M12 12h16M12 20h16M12 28h8' stroke='white' stroke-width='1.5'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="logo-optimized.svg">
+    <link rel="apple-touch-icon" href="logo-optimized.svg">
     
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,9 +59,9 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "Omni Seq Pvt. Ltd.",
+      "name": "OmniSeq Pvt. Ltd.",
       "url": "https://omniseq.com.np",
-      "logo": "https://omniseq.com.np/logo.svg",
+      "logo": "https://omniseq.com.np/logo-optimized.svg",
       "description": "Enterprise-grade cybersecurity and IT infrastructure solutions",
       "address": {
         "@type": "PostalAddress",
@@ -91,16 +92,9 @@
             <div class="container">
                 <div class="header__content">
                     <!-- Logo Section -->
-                    <a href="#home" class="header__logo" @click="scrollToSection" aria-label="Omni Seq Home">
-                        <svg class="cyber-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="4" y="4" width="32" height="32" rx="2"/>
-                            <path d="M12 12h16M12 20h16M12 28h8"/>
-                            <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
-                            <circle cx="32" cy="8" r="1.5" fill="currentColor"/>
-                            <circle cx="8" cy="32" r="1.5" fill="currentColor"/>
-                            <circle cx="32" cy="32" r="1.5" fill="currentColor"/>
-                        </svg>
-                        <span class="logo-text">Omni Seq</span>
+                    <a href="#home" class="header__logo" @click="scrollToSection" aria-label="OmniSeq Home">
+                        <img src="logo-optimized.svg" alt="OmniSeq Logo" class="logo-icon" width="40" height="40">
+                        <span class="logo-text">OmniSeq</span>
                     </a>
 
                     <!-- Navigation Menu -->
@@ -110,6 +104,24 @@
                         <a href="#about" class="nav__link" @click="scrollToSection">About</a>
                         <a href="#contact" class="nav__link" @click="scrollToSection">Contact</a>
                     </nav>
+
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle" @click="toggleTheme" :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'" :title="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+                        <svg v-if="theme === 'light'" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <svg v-else class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
 
                     <!-- Mobile Menu Toggle -->
                     <button class="mobile-menu-btn" :class="{ 'open': mobileMenuOpen }" @click="toggleMobileMenu">
