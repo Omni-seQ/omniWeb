@@ -577,6 +577,145 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /**
+   * Interactive Mouse-Responsive Background Effects
+   */
+  function initMouseEffects() {
+    const heroBackground = document.getElementById('heroBackground');
+    const mouseFollower = document.getElementById('mouseFollower');
+    const particleCanvas = document.getElementById('particleCanvas');
+    
+    if (!heroBackground || !mouseFollower) return;
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let isMouseActive = false;
+
+    // Smooth mouse follower
+    heroBackground.addEventListener('mousemove', (e) => {
+      isMouseActive = true;
+      mouseFollower.classList.add('active');
+      
+      const rect = heroBackground.getBoundingClientRect();
+      targetX = e.clientX - rect.left;
+      targetY = e.clientY - rect.top;
+    });
+
+    heroBackground.addEventListener('mouseleave', () => {
+      isMouseActive = false;
+      mouseFollower.classList.remove('active');
+    });
+
+    // Smooth animation loop for mouse follower
+    function animateMouseFollower() {
+      mouseX += (targetX - mouseX) * 0.1;
+      mouseY += (targetY - mouseY) * 0.1;
+      
+      if (isMouseActive) {
+        mouseFollower.style.left = mouseX + 'px';
+        mouseFollower.style.top = mouseY + 'px';
+      }
+      
+      requestAnimationFrame(animateMouseFollower);
+    }
+    animateMouseFollower();
+
+    // Parallax effect on background elements
+    heroBackground.addEventListener('mousemove', (e) => {
+      const rect = heroBackground.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      
+      const moveX = (x - 0.5) * 20;
+      const moveY = (y - 0.5) * 20;
+      
+      const grid = heroBackground.querySelector('.cyber-grid');
+      const orbs = heroBackground.querySelectorAll('.glow-orb');
+      
+      if (grid) {
+        grid.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      }
+      
+      orbs.forEach((orb, index) => {
+        const multiplier = index === 0 ? 1.5 : -1;
+        orb.style.transform = `translate(${moveX * multiplier}px, ${moveY * multiplier}px)`;
+      });
+    });
+
+    // Particle canvas effect
+    if (particleCanvas) {
+      const ctx = particleCanvas.getContext('2d');
+      const particles = [];
+      const particleCount = 50;
+
+      // Set canvas size
+      function resizeCanvas() {
+        particleCanvas.width = heroBackground.offsetWidth;
+        particleCanvas.height = heroBackground.offsetHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      // Create particles
+      class Particle {
+        constructor() {
+          this.reset();
+        }
+
+        reset() {
+          this.x = Math.random() * particleCanvas.width;
+          this.y = Math.random() * particleCanvas.height;
+          this.vx = (Math.random() - 0.5) * 0.5;
+          this.vy = (Math.random() - 0.5) * 0.5;
+          this.size = Math.random() * 2 + 1;
+          this.opacity = Math.random() * 0.5 + 0.2;
+        }
+
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+
+          if (this.x < 0 || this.x > particleCanvas.width) this.vx *= -1;
+          if (this.y < 0 || this.y > particleCanvas.height) this.vy *= -1;
+        }
+
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(33, 128, 141, ${this.opacity})`;
+          ctx.fill();
+        }
+      }
+
+      // Initialize particles
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+
+      // Animation loop
+      function animateParticles() {
+        ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+        
+        particles.forEach(particle => {
+          particle.update();
+          particle.draw();
+        });
+
+        requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+    }
+  }
+
+  // Initialize mouse effects after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMouseEffects);
+  } else {
+    initMouseEffects();
+  }
+
+  /**
    * Performance: Optimize scroll handlers with requestAnimationFrame
    */
   let scrollTicking = false;
