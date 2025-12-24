@@ -1,6 +1,6 @@
 const { createApp } = Vue;
 
-createApp({
+const app = createApp({
   data() {
     return {
       isScrolled: false,
@@ -19,16 +19,42 @@ createApp({
   },
 
   mounted() {
-    // Scroll event listener
-    window.addEventListener('scroll', this.handleScroll);
+    // Scroll event listener (throttled)
+    let scrollTimeout;
+    const throttledScroll = () => {
+      if (!scrollTimeout) {
+        scrollTimeout = requestAnimationFrame(() => {
+          this.handleScroll();
+          scrollTimeout = null;
+        });
+      }
+    };
+    window.addEventListener('scroll', throttledScroll, { passive: true });
     
     // Keyboard navigation
     document.addEventListener('keydown', this.handleKeyboard);
+    
+    // Close mobile menu on window resize
+    const handleResize = () => {
+      if (window.innerWidth > 768 && this.mobileMenuOpen) {
+        this.mobileMenuOpen = false;
+        document.body.style.overflow = '';
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    
+    // Store cleanup function
+    this._cleanup = () => {
+      window.removeEventListener('scroll', throttledScroll);
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('keydown', this.handleKeyboard);
+    };
   },
 
   beforeUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
-    document.removeEventListener('keydown', this.handleKeyboard);
+    if (this._cleanup) {
+      this._cleanup();
+    }
   },
 
   methods: {
@@ -45,25 +71,56 @@ createApp({
      */
     toggleMobileMenu() {
       this.mobileMenuOpen = !this.mobileMenuOpen;
+      // Prevent body scroll when menu is open
+      if (this.mobileMenuOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
     },
 
     /**
      * Smooth scroll navigation to sections
      */
     scrollToSection(event) {
-      if (event.preventDefault) {
+      // Prevent default if it's a real event
+      if (event && event.preventDefault) {
         event.preventDefault();
       }
 
       // Close mobile menu
       this.mobileMenuOpen = false;
+      document.body.style.overflow = '';
 
-      // Get target href
-      const href = event.target.getAttribute('href') || event.target.href;
-      if (!href) return;
+      // Get target href - handle both anchor clicks and programmatic calls
+      let href = null;
+      
+      if (event && event.target) {
+        // Find the closest anchor tag if clicking on a child element
+        const anchor = event.target.closest('a') || event.target;
+        href = anchor.getAttribute('href') || anchor.href;
+        
+        // Handle button clicks with data-href attribute
+        if (!href && anchor.dataset.href) {
+          href = anchor.dataset.href;
+        }
+      } else if (event && event.target && event.target.href) {
+        // Handle programmatic calls with target object
+        href = event.target.href;
+      } else if (typeof event === 'string') {
+        // Allow direct string href
+        href = event;
+      }
+
+      if (!href || href === '#' || !href.startsWith('#')) {
+        return;
+      }
 
       const targetElement = document.querySelector(href);
-      if (!targetElement) return;
+      if (!targetElement) {
+        console.warn(`Target element not found: ${href}`);
+        return;
+      }
 
       // Calculate position accounting for sticky header
       const headerHeight = 80;
@@ -108,23 +165,48 @@ createApp({
      * Handle form submission
      */
     handleFormSubmit() {
+      // Prevent double submission
+      if (this.formSubmitted && !this.formError) {
+        return;
+      }
+
       // Validate
       if (!this.validateForm()) {
         return;
       }
 
+      // Prepare form data
+      const formData = {
+        name: this.form.name.trim(),
+        email: this.form.email.trim(),
+        subject: this.form.subject.trim(),
+        message: this.form.message.trim(),
+        timestamp: new Date().toISOString()
+      };
+
       // Log form data (frontend only - no backend)
-      console.log('Form Submitted:', this.form);
+      console.log('Form Submitted:', formData);
+
+      // In a real application, you would send this to a backend API
+      // Example: await fetch('/api/contact', { method: 'POST', body: JSON.stringify(formData) });
 
       // Show success message
       this.formError = false;
-      this.formMessage = `Thank you, ${this.form.name}! We've received your message and will contact you within 24 hours.`;
+      this.formMessage = `Thank you, ${formData.name}! We've received your message and will contact you within 24 hours.`;
       this.formSubmitted = true;
+
+      // Scroll to form message
+      const formMessage = document.querySelector('.form-message');
+      if (formMessage) {
+        setTimeout(() => {
+          formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
 
       // Reset form after delay
       setTimeout(() => {
         this.resetForm();
-      }, 4000);
+      }, 5000);
     },
 
     /**
@@ -202,7 +284,11 @@ createApp({
       this.formError = false;
     }
   }
-}).mount('#app');
+});
+
+// Mount app and store reference globally for link handlers
+const mountedApp = app.mount('#app');
+window.vueApp = mountedApp;
 
 /* ==========================================
    VANILLA JAVASCRIPT ENHANCEMENTS
@@ -210,7 +296,7 @@ createApp({
 
 document.addEventListener('DOMContentLoaded', function() {
   /**
-   * Initialize scroll animations using Intersection Observer
+   * Initialize scroll animations using Intersection Observer (optimized)
    */
   const observerOptions = {
     threshold: 0.1,
@@ -220,10 +306,14 @@ document.addEventListener('DOMContentLoaded', function() {
   const observer = new IntersectionObserver(function(entries) {
     entries.forEach((entry, index) => {
       if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }, index * 50);
+        // Use requestAnimationFrame for better performance
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }, index * 50);
+        });
+        observer.unobserve(entry.target); // Stop observing once animated
       }
     });
   }, observerOptions);
@@ -309,15 +399,26 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   /**
-   * Contact info boxes animated reveal
+   * Contact info boxes animated reveal (optimized)
    */
   const contactBoxes = document.querySelectorAll('.contact-box');
+  const contactObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        requestAnimationFrame(() => {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateX(0)';
+        });
+        contactObserver.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
   contactBoxes.forEach((box, index) => {
     box.style.opacity = '0';
     box.style.transform = 'translateX(-20px)';
     box.style.transition = `opacity 0.6s ease-out ${index * 0.1}s, transform 0.6s ease-out ${index * 0.1}s`;
-    
-    observer.observe(box);
+    contactObserver.observe(box);
   });
 
   /**
@@ -326,18 +427,24 @@ document.addEventListener('DOMContentLoaded', function() {
   const emailLink = document.querySelector('a[href^="mailto:"]');
   if (emailLink) {
     emailLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      const email = this.textContent.trim();
-      navigator.clipboard.writeText(email).then(() => {
-        const originalText = this.textContent;
-        this.textContent = '✓ Copied!';
-        this.style.color = '#00ff88';
-        
-        setTimeout(() => {
-          this.textContent = originalText;
-          this.style.color = '';
-        }, 2000);
-      });
+      // Don't prevent default - let mailto work normally
+      // But also copy to clipboard if possible
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        const email = this.getAttribute('href').replace('mailto:', '');
+        navigator.clipboard.writeText(email).then(() => {
+          const originalText = this.textContent;
+          const originalColor = this.style.color;
+          this.textContent = '✓ Copied!';
+          this.style.color = 'var(--color-success)';
+          
+          setTimeout(() => {
+            this.textContent = originalText;
+            this.style.color = originalColor;
+          }, 2000);
+        }).catch(() => {
+          // Clipboard API failed, let mailto work normally
+        });
+      }
     });
   }
 
@@ -363,33 +470,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /**
-   * Accessibility: Skip to main content
+   * Setup skip link functionality (if not already in HTML)
    */
-  const skipLink = document.createElement('a');
-  skipLink.href = '#home';
-  skipLink.textContent = 'Skip to main content';
-  skipLink.style.cssText = `
-    position: absolute;
-    top: -40px;
-    left: 0;
-    background: #00d4ff;
-    color: #0a0e1a;
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 0 0 4px 0;
-    z-index: 999;
-    font-weight: 600;
-  `;
-
-  skipLink.addEventListener('focus', () => {
-    skipLink.style.top = '0';
-  });
-
-  skipLink.addEventListener('blur', () => {
-    skipLink.style.top = '-40px';
-  });
-
-  document.body.insertBefore(skipLink, document.body.firstChild);
+  const existingSkipLink = document.querySelector('.skip-link');
+  if (existingSkipLink) {
+    existingSkipLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.focus();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
 
   /**
    * Keyboard accessibility for focus management
@@ -416,32 +509,86 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   /**
-   * Smooth link behavior for internal anchors
+   * Smooth link behavior for internal anchors (fallback for dynamically added links)
    */
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
-      if (href !== '#' && document.querySelector(href)) {
-        e.preventDefault();
-        const event = new Event('click');
-        event.target = this;
-        window.app.scrollToSection(event);
+  window.setupAnchorLinks = function() {
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      // Skip if already has Vue handler
+      if (link.hasAttribute('@click') || link.getAttribute('v-on:click')) {
+        return;
+      }
+      
+      // Check if link already has our handler
+      if (link.dataset.smoothScrollSetup) {
+        return;
+      }
+      
+      link.dataset.smoothScrollSetup = 'true';
+      
+      link.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href && href !== '#' && document.querySelector(href)) {
+          e.preventDefault();
+          // Use Vue app instance if available
+          if (window.vueApp && window.vueApp.scrollToSection) {
+            window.vueApp.scrollToSection(e);
+          } else {
+            // Fallback smooth scroll
+            const targetElement = document.querySelector(href);
+            if (targetElement) {
+              const headerHeight = 80;
+              const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+              const offsetPosition = elementPosition - headerHeight;
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }
+      });
+    });
+  };
+  
+  // Setup links after DOM is ready and after templates render
+  window.setupAnchorLinks();
+  
+  // Re-setup links after Handlebars renders content
+  setTimeout(window.setupAnchorLinks, 100);
+
+  /**
+   * Performance: Intersection Observer for lazy loading animations
+   */
+  const animationObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-in');
+        animationObserver.unobserve(entry.target);
       }
     });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  });
+
+  // Observe elements that should animate in
+  document.querySelectorAll('.service-card, .industry-card, .contact-box, .mission-section, .ceo-section').forEach(el => {
+    animationObserver.observe(el);
   });
 
   /**
-   * Performance: Debounced scroll handler
+   * Performance: Optimize scroll handlers with requestAnimationFrame
    */
-  let scrollTimeout;
-  window.addEventListener('scroll', () => {
-    if (scrollTimeout) {
-      window.cancelAnimationFrame(scrollTimeout);
+  let scrollTicking = false;
+  const optimizedScrollHandler = () => {
+    if (!scrollTicking) {
+      window.requestAnimationFrame(() => {
+        // Any scroll-based logic here
+        scrollTicking = false;
+      });
+      scrollTicking = true;
     }
-    scrollTimeout = window.requestAnimationFrame(() => {
-      // Scroll logic here
-    });
-  });
+  };
 
   console.log('✓ Enhanced Omni Seq website initialized successfully');
 });

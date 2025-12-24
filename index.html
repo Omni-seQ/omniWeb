@@ -3,19 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Omni Seq - Enterprise Cybersecurity Solutions</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- Primary Meta Tags -->
+    <title>Omni Seq - Enterprise Cybersecurity Solutions | Nepal</title>
+    <meta name="title" content="Omni Seq - Enterprise Cybersecurity Solutions | Nepal">
+    <meta name="description" content="Enterprise-grade IT solutions designed for modern business challenges. VAPT testing, compliance auditing, security operations, and infrastructure design in Nepal.">
+    <meta name="keywords" content="cybersecurity, VAPT testing, compliance auditing, security operations, infrastructure design, cloud enablement, managed IT services, Nepal">
+    <meta name="author" content="Omni Seq Pvt. Ltd.">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://omniseq.com.np/">
+    <meta property="og:title" content="Omni Seq - Enterprise Cybersecurity Solutions">
+    <meta property="og:description" content="Enterprise-grade IT solutions designed for modern business challenges. VAPT testing, compliance auditing, security operations, and infrastructure design.">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://omniseq.com.np/">
+    <meta property="twitter:title" content="Omni Seq - Enterprise Cybersecurity Solutions">
+    <meta property="twitter:description" content="Enterprise-grade IT solutions designed for modern business challenges.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect x='4' y='4' width='32' height='32' rx='2' fill='%2333808d'/><path d='M12 12h16M12 20h16M12 28h8' stroke='white' stroke-width='1.5'/></svg>">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Canonical URL -->
     <link rel="canonical" href="https://omniseq.com.np/" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#21808d">
 </head>
 <body>
+    <!-- Skip to main content link for accessibility -->
+    <a href="#home" class="skip-link">Skip to main content</a>
+    
     <div id="app">
         <!-- ========== HEADER / NAVIGATION ========== -->
         <header class="header" :class="{ 'scrolled': isScrolled }">
             <div class="container">
                 <div class="header__content">
                     <!-- Logo Section -->
-                    <div class="header__logo">
+                    <a href="#home" class="header__logo" @click="scrollToSection" aria-label="Omni Seq Home">
                         <svg class="cyber-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5">
                             <rect x="4" y="4" width="32" height="32" rx="2"/>
                             <path d="M12 12h16M12 20h16M12 28h8"/>
@@ -25,7 +65,7 @@
                             <circle cx="32" cy="32" r="1.5" fill="currentColor"/>
                         </svg>
                         <span class="logo-text">Omni Seq</span>
-                    </div>
+                    </a>
 
                     <!-- Navigation Menu -->
                     <nav class="nav" :class="{ 'open': mobileMenuOpen }">
@@ -64,13 +104,13 @@
                     <p class="hero__subtitle"><em>Enterprise-grade IT solutions designed for modern business challenges</em></p>
                     
                     <div class="hero__cta">
-                     <button class="btn btn--primary" @click="scrollToSection({ target: { href: '#services' } })"> 
+                        <a href="#services" class="btn btn--primary" @click="scrollToSection"> 
                             <span>Explore Services</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
                             </svg>
-                        </button>
-                        <button class="btn btn--outline" @click="scrollToSection({ target: { href: '#contact' } })">Get in Touch</button>
+                        </a>
+                        <a href="#contact" class="btn btn--outline" @click="scrollToSection">Get in Touch</a>
                     </div>
                 </div>
             </div>
@@ -226,12 +266,12 @@
     </div>
 
     <!-- Vue.js CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js" defer></script>
     <!-- Handlebars.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.min.js" defer></script>
     <!-- Templates -->
-    <script src="templates.js"></script>
+    <script src="templates.js" defer></script>
     <!-- Main Application -->
-    <script src="main.js"></script>
+    <script src="main.js" defer></script>
 </body>
 </html>

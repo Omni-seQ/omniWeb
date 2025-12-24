@@ -460,7 +460,8 @@ pre code {
   border-radius: var(--radius-md);
 }
 
-.btn--full-width {
+.btn--full-width,
+.btn--full {
   width: 100%;
 }
 
@@ -829,6 +830,7 @@ a:hover {
   border-bottom: 1px solid transparent;
   transition: all var(--duration-normal) var(--ease-standard);
   padding: var(--space-16) 0;
+  will-change: background, backdrop-filter, border-color;
 }
 
 .header.scrolled {
@@ -853,6 +855,8 @@ a:hover {
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   transition: all var(--duration-normal) var(--ease-standard);
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .header__logo:hover {
@@ -1243,6 +1247,7 @@ section {
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-sm);
+  will-change: transform, box-shadow;
 }
 
 .service-card::before {
@@ -1818,8 +1823,8 @@ body .about .mission-section.active .mission-text {
   }
 
   .nav {
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: 60px;
     left: 0;
     right: 0;
     flex-direction: column;
@@ -1830,10 +1835,12 @@ body .about .mission-section.active .mission-text {
     overflow: hidden;
     transition: max-height var(--duration-normal) var(--ease-standard);
     box-shadow: var(--shadow-md);
+    z-index: 99;
   }
 
   .nav.open {
-    max-height: 300px;
+    max-height: 400px;
+    padding: var(--space-8) 0;
   }
 
   .nav__link {
@@ -2014,5 +2021,62 @@ body .about .mission-section.active .mission-text {
 
   section {
     padding: var(--space-20) 0;
+  }
+}
+
+/* ========== ANIMATION UTILITIES ========== */
+
+.animate-in {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== ACCESSIBILITY IMPROVEMENTS ========== */
+
+/* Focus visible improvements */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  padding: var(--space-8) var(--space-16);
+  text-decoration: none;
+  border-radius: 0 0 var(--radius-base) 0;
+  z-index: 1000;
+  font-weight: var(--font-weight-semibold);
+  transition: top var(--duration-fast) var(--ease-standard);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

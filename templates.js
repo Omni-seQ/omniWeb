@@ -271,4 +271,11 @@ document.addEventListener('DOMContentLoaded', function() {
   renderServices();
   renderIndustries();
   renderFooter();
+  
+  // Re-setup anchor links after templates render
+  setTimeout(() => {
+    if (window.setupAnchorLinks) {
+      window.setupAnchorLinks();
+    }
+  }, 200);
 });
